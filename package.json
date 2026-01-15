@@ -1,0 +1,28 @@
+{
+  "name": "coffee-education",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
+    "dev:client": "npm run dev -w @coffee/client",
+    "dev:server": "npm run dev -w @coffee/server",
+    "build": "npm run build -w @coffee/shared && npm run build -w @coffee/client && npm run build -w @coffee/server",
+    "build:client": "npm run build -w @coffee/client",
+    "build:server": "npm run build -w @coffee/server",
+    "lint": "npm run lint --workspaces --if-present",
+    "db:generate": "npm run db:generate -w @coffee/server",
+    "db:migrate": "npm run db:migrate -w @coffee/server",
+    "db:push": "npm run db:push -w @coffee/server"
+  },
+  "devDependencies": {
+    "@geo-maps/countries-land-10km": "^0.6.0",
+    "concurrently": "^8.2.2",
+    "typescript": "^5.3.3"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

@@ -1,0 +1,240 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ==================== USER MODELS ====================
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String?
+  name         String
+  avatarUrl    String?
+  googleId     String?  @unique
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  reviews   Review[]
+  favorites Favorite[]
+  analyses  BeanAnalysis[]
+
+  @@index([email])
+  @@index([googleId])
+}
+
+model RefreshToken {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  userId    String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([token])
+}
+
+// ==================== COFFEE MODELS ====================
+
+model Coffee {
+  id          String  @id @default(cuid())
+  name        String
+  description String?
+
+  // Origin information
+  origin   String
+  region   String?
+  farm     String?
+  altitude String?
+  process  ProcessMethod
+
+  // Roast information
+  roastLevel RoastLevel
+  roaster    String?
+  roastDate  DateTime?
+
+  // Bean characteristics
+  variety String?
+
+  // Brew parameters (stored as JSON)
+  brewParams Json @default("{}")
+
+  // Tasting profile
+  tastingNotes String[]
+  acidity      Int?
+  body         Int?
+  sweetness    Int?
+
+  // Media
+  imageUrl String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  reviews   Review[]
+  favorites Favorite[]
+  analyses  BeanAnalysis[]
+
+  @@index([origin])
+  @@index([roastLevel])
+  @@index([name])
+}
+
+enum RoastLevel {
+  LIGHT
+  MEDIUM_LIGHT
+  MEDIUM
+  MEDIUM_DARK
+  DARK
+}
+
+enum ProcessMethod {
+  WASHED
+  NATURAL
+  HONEY
+  ANAEROBIC
+  WET_HULLED
+  OTHER
+}
+
+// ==================== REVIEW MODELS ====================
+
+model Review {
+  id String @id @default(cuid())
+
+  rating  Int
+  title   String?
+  content String?
+
+  brewMethod BrewMethod
+  brewParams Json?
+
+  tastingNotes String[]
+
+  userId   String
+  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  coffeeId String
+  coffee   Coffee @relation(fields: [coffeeId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, coffeeId])
+  @@index([coffeeId])
+  @@index([userId])
+  @@index([rating])
+}
+
+enum BrewMethod {
+  ESPRESSO
+  POUR_OVER
+  FRENCH_PRESS
+  AEROPRESS
+  COLD_BREW
+  DRIP
+  MOKA_POT
+  SIPHON
+  OTHER
+}
+
+// ==================== FAVORITES ====================
+
+model Favorite {
+  id       String @id @default(cuid())
+  userId   String
+  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  coffeeId String
+  coffee   Coffee @relation(fields: [coffeeId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@unique([userId, coffeeId])
+  @@index([userId])
+}
+
+// ==================== IMAGE STORAGE ====================
+
+model Image {
+  id       String @id @default(cuid())
+  filename String
+  mimeType String
+  size     Int
+  data     Bytes  // Binary image data
+
+  userId String?
+
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}
+
+// ==================== AI ANALYSIS ====================
+
+model BeanAnalysis {
+  id String @id @default(cuid())
+
+  imageId        String  // Reference to Image model
+  identifiedBean String?
+  confidence     Float?
+  roastLevel     RoastLevel?
+
+  suggestedParams Json     @default("{}")
+  observations    String[]
+
+  userId   String?
+  user     User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
+  coffeeId String?
+  coffee   Coffee? @relation(fields: [coffeeId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([imageId])
+}
+
+// ==================== EDUCATIONAL CONTENT ====================
+
+model EducationalContent {
+  id       String  @id @default(cuid())
+  slug     String  @unique
+  title    String
+  subtitle String?
+  content  String
+  excerpt  String?
+
+  category ContentCategory
+  tags     String[]
+
+  coverImage String?
+
+  metaTitle       String?
+  metaDescription String?
+
+  published   Boolean   @default(false)
+  publishedAt DateTime?
+
+  order Int @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([category])
+  @@index([slug])
+  @@index([published])
+}
+
+enum ContentCategory {
+  ORIGINS
+  ROASTING
+  BREWING
+  EQUIPMENT
+  HISTORY
+  CULTURE
+  LOCATIONS
+  SCIENCE
+}
