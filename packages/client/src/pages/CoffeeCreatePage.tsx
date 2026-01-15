@@ -50,6 +50,7 @@ export function CoffeeCreatePage() {
   // Form state
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
+  const [notes, setNotes] = useState('');
   const [origin, setOrigin] = useState('');
   const [region, setRegion] = useState('');
   const [farm, setFarm] = useState('');
@@ -113,14 +114,28 @@ export function CoffeeCreatePage() {
       setAnalysisResult(analysis);
 
       // Auto-populate form fields from analysis
+      if (analysis.brandName && !roaster) {
+        setRoaster(analysis.brandName);
+      }
+      if (analysis.coffeeName && !name) {
+        setName(analysis.coffeeName);
+      }
       if (analysis.roastLevel) {
         setRoastLevel(analysis.roastLevel);
       }
       if (analysis.possibleOrigin) {
         setOrigin(analysis.possibleOrigin);
       }
-      if (analysis.tastingNotesLikely?.length) {
-        setTastingNotes(analysis.tastingNotesLikely);
+      // Combine tasting notes from bag with AI predictions
+      const allNotes = [
+        ...(analysis.tastingNotes || []),
+        ...(analysis.tastingNotesLikely || []),
+      ].filter((note, index, arr) => arr.indexOf(note) === index);
+      if (allNotes.length) {
+        setTastingNotes(allNotes);
+      }
+      if (analysis.flavorProfile && !description) {
+        setDescription(analysis.flavorProfile);
       }
       if (analysis.brewParameters) {
         setBrewParams(analysis.brewParameters);
@@ -163,6 +178,7 @@ export function CoffeeCreatePage() {
       const coffeeData = {
         name: name.trim(),
         description: description.trim() || undefined,
+        notes: notes.trim() || undefined,
         origin: origin.trim(),
         region: region.trim() || undefined,
         farm: farm.trim() || undefined,
@@ -201,7 +217,7 @@ export function CoffeeCreatePage() {
         <div className="mb-8">
           <h1 className="text-3xl font-display font-semibold mb-2">Spill the Beans</h1>
           <p className="text-muted-foreground">
-            Add a new coffee to your collection. Upload an image to auto-fill details with AI analysis.
+            Add a new coffee to your collection. Upload a photo of the coffee bag to auto-fill details with AI, or enter everything manually.
           </p>
         </div>
 
@@ -211,10 +227,10 @@ export function CoffeeCreatePage() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Sparkles className="h-5 w-5" />
-                Bean Image & AI Analysis
+                Coffee Bag Image & AI Analysis
               </CardTitle>
               <CardDescription>
-                Upload a photo of your coffee beans to automatically detect roast level, origin hints, and suggested brew parameters.
+                Upload a photo of your coffee bag to automatically extract brand, name, origin, roast level, and tasting notes. Or skip this and enter details manually below.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -263,7 +279,7 @@ export function CoffeeCreatePage() {
                   <div className="space-y-3">
                     <Upload className="h-10 w-10 mx-auto text-muted-foreground" />
                     <div>
-                      <p className="font-medium">Drop your coffee bean image here</p>
+                      <p className="font-medium">Drop your coffee bag image here</p>
                       <p className="text-sm text-muted-foreground">
                         or click to browse (PNG, JPG, WEBP up to 10MB)
                       </p>
@@ -352,7 +368,16 @@ export function CoffeeCreatePage() {
                   <textarea
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
-                    placeholder="Describe this coffee..."
+                    placeholder="Describe this coffee (flavor profile, characteristics...)"
+                    className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm min-h-[80px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  />
+                </div>
+                <div className="sm:col-span-2">
+                  <label className="block text-sm font-medium mb-1">Personal Notes</label>
+                  <textarea
+                    value={notes}
+                    onChange={(e) => setNotes(e.target.value)}
+                    placeholder="Your personal notes, comments, brewing tips, purchase info..."
                     className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm min-h-[80px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                   />
                 </div>
@@ -581,65 +606,124 @@ export function CoffeeCreatePage() {
             </CardContent>
           </Card>
 
-          {/* Brew Parameters (if auto-filled) */}
-          {(brewParams.espresso || brewParams.pourOver) && (
-            <Card>
-              <CardHeader>
-                <CardTitle>Suggested Brew Parameters</CardTitle>
-                <CardDescription>
-                  Auto-filled from AI analysis. These will be saved with the coffee.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {brewParams.espresso && (
-                  <div className="bg-muted/50 rounded-lg p-4">
-                    <h4 className="font-medium mb-2">Espresso</h4>
-                    <div className="grid sm:grid-cols-4 gap-3 text-sm">
-                      <div>
-                        <span className="text-muted-foreground">Dose:</span>{' '}
-                        {brewParams.espresso.dose}g
-                      </div>
-                      <div>
-                        <span className="text-muted-foreground">Yield:</span>{' '}
-                        {brewParams.espresso.yield}g
-                      </div>
-                      <div>
-                        <span className="text-muted-foreground">Temp:</span>{' '}
-                        {brewParams.espresso.temperature}°C
-                      </div>
-                      <div>
-                        <span className="text-muted-foreground">Grind:</span>{' '}
-                        {brewParams.espresso.grindSize}
-                      </div>
-                    </div>
+          {/* Brew Parameters */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Brew Parameters</CardTitle>
+              <CardDescription>
+                Recommended brewing parameters. {analysisResult ? 'Auto-filled from AI - edit as needed.' : 'Enter your preferred settings.'}
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {/* Espresso */}
+              <div className="space-y-3">
+                <h4 className="font-medium">Espresso</h4>
+                <div className="grid sm:grid-cols-4 gap-3">
+                  <div>
+                    <label className="block text-sm text-muted-foreground mb-1">Dose (g)</label>
+                    <Input
+                      type="number"
+                      value={brewParams.espresso?.dose || ''}
+                      onChange={(e) => setBrewParams(prev => ({
+                        ...prev,
+                        espresso: { ...prev.espresso, dose: Number(e.target.value) || undefined }
+                      }))}
+                      placeholder="18"
+                    />
                   </div>
-                )}
-                {brewParams.pourOver && (
-                  <div className="bg-muted/50 rounded-lg p-4">
-                    <h4 className="font-medium mb-2">Pour Over</h4>
-                    <div className="grid sm:grid-cols-4 gap-3 text-sm">
-                      <div>
-                        <span className="text-muted-foreground">Dose:</span>{' '}
-                        {brewParams.pourOver.dose}g
-                      </div>
-                      <div>
-                        <span className="text-muted-foreground">Water:</span>{' '}
-                        {brewParams.pourOver.waterAmount}ml
-                      </div>
-                      <div>
-                        <span className="text-muted-foreground">Temp:</span>{' '}
-                        {brewParams.pourOver.temperature}°C
-                      </div>
-                      <div>
-                        <span className="text-muted-foreground">Grind:</span>{' '}
-                        {brewParams.pourOver.grindSize}
-                      </div>
-                    </div>
+                  <div>
+                    <label className="block text-sm text-muted-foreground mb-1">Yield (g)</label>
+                    <Input
+                      type="number"
+                      value={brewParams.espresso?.yield || ''}
+                      onChange={(e) => setBrewParams(prev => ({
+                        ...prev,
+                        espresso: { ...prev.espresso, yield: Number(e.target.value) || undefined }
+                      }))}
+                      placeholder="36"
+                    />
                   </div>
-                )}
-              </CardContent>
-            </Card>
-          )}
+                  <div>
+                    <label className="block text-sm text-muted-foreground mb-1">Temp (°C)</label>
+                    <Input
+                      type="number"
+                      value={brewParams.espresso?.temperature || ''}
+                      onChange={(e) => setBrewParams(prev => ({
+                        ...prev,
+                        espresso: { ...prev.espresso, temperature: Number(e.target.value) || undefined }
+                      }))}
+                      placeholder="93"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm text-muted-foreground mb-1">Grind Size</label>
+                    <Input
+                      value={brewParams.espresso?.grindSize || ''}
+                      onChange={(e) => setBrewParams(prev => ({
+                        ...prev,
+                        espresso: { ...prev.espresso, grindSize: e.target.value || undefined }
+                      }))}
+                      placeholder="Fine"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Pour Over */}
+              <div className="space-y-3 pt-4 border-t">
+                <h4 className="font-medium">Pour Over</h4>
+                <div className="grid sm:grid-cols-4 gap-3">
+                  <div>
+                    <label className="block text-sm text-muted-foreground mb-1">Dose (g)</label>
+                    <Input
+                      type="number"
+                      value={brewParams.pourOver?.dose || ''}
+                      onChange={(e) => setBrewParams(prev => ({
+                        ...prev,
+                        pourOver: { ...prev.pourOver, dose: Number(e.target.value) || undefined }
+                      }))}
+                      placeholder="15"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm text-muted-foreground mb-1">Water (ml)</label>
+                    <Input
+                      type="number"
+                      value={brewParams.pourOver?.waterAmount || ''}
+                      onChange={(e) => setBrewParams(prev => ({
+                        ...prev,
+                        pourOver: { ...prev.pourOver, waterAmount: Number(e.target.value) || undefined }
+                      }))}
+                      placeholder="250"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm text-muted-foreground mb-1">Temp (°C)</label>
+                    <Input
+                      type="number"
+                      value={brewParams.pourOver?.temperature || ''}
+                      onChange={(e) => setBrewParams(prev => ({
+                        ...prev,
+                        pourOver: { ...prev.pourOver, temperature: Number(e.target.value) || undefined }
+                      }))}
+                      placeholder="94"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm text-muted-foreground mb-1">Grind Size</label>
+                    <Input
+                      value={brewParams.pourOver?.grindSize || ''}
+                      onChange={(e) => setBrewParams(prev => ({
+                        ...prev,
+                        pourOver: { ...prev.pourOver, grindSize: e.target.value || undefined }
+                      }))}
+                      placeholder="Medium"
+                    />
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
 
           {/* Error Display */}
           {error && (

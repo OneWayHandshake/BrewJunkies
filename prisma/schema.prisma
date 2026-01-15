@@ -87,6 +87,7 @@ model Coffee {
   id          String  @id @default(cuid())
   name        String
   description String?
+  notes       String? // Personal notes/comments from user
 
   // Origin information
   origin   String
