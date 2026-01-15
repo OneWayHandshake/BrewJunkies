@@ -5,6 +5,7 @@ import { analyzeController } from '../controllers/analyze.controller.js';
 const router = Router();
 
 router.post('/', optionalAuth, analyzeController.analyze);
+router.get('/providers', optionalAuth, analyzeController.getProviders);
 router.get('/', authenticate, analyzeController.getHistory);
 router.get('/:id', authenticate, analyzeController.getById);
 

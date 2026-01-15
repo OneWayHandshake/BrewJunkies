@@ -15,15 +15,31 @@ const app = express();
 app.use(helmet());
 app.use(
   cors({
-    origin: process.env.CLIENT_URL || 'http://localhost:5173',
+    origin: (origin, callback) => {
+      // Allow requests with no origin (like mobile apps or curl)
+      if (!origin) return callback(null, true);
+
+      // Allow localhost on any port in development
+      if (process.env.NODE_ENV === 'development' && origin.startsWith('http://localhost:')) {
+        return callback(null, true);
+      }
+
+      // Check against CLIENT_URL in production
+      const allowedOrigin = process.env.CLIENT_URL || 'http://localhost:5173';
+      if (origin === allowedOrigin) {
+        return callback(null, true);
+      }
+
+      callback(new Error('Not allowed by CORS'));
+    },
     credentials: true,
   })
 );
 
-// Rate limiting
+// Rate limiting - more generous in development
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 100,
+  max: process.env.NODE_ENV === 'development' ? 1000 : 100,
   message: 'Too many requests, please try again later.',
 });
 app.use(limiter);

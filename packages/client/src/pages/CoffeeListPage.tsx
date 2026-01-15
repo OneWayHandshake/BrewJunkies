@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { Search, Filter, Loader2, Coffee, Star, X } from 'lucide-react';
+import { Search, Filter, Loader2, Coffee, Star, X, Plus } from 'lucide-react';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { Card, CardContent } from '@/components/ui/Card';
@@ -71,11 +71,19 @@ export function CoffeeListPage() {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2">Coffee Catalog</h1>
-        <p className="text-muted-foreground">
-          Browse our collection of {coffees.length} coffees with detailed brew parameters and tasting notes.
-        </p>
+      <div className="mb-8 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-display font-semibold mb-2">Coffee Catalog</h1>
+          <p className="text-muted-foreground">
+            Browse our collection of {coffees.length} coffees with detailed brew parameters and tasting notes.
+          </p>
+        </div>
+        <Link to="/coffees/new">
+          <Button className="gap-2 rounded-xl shadow-soft hover:shadow-soft-lg transition-all">
+            <Plus className="h-4 w-4" />
+            Spill the Beans
+          </Button>
+        </Link>
       </div>
 
       <div className="flex flex-col md:flex-row gap-4 mb-6">

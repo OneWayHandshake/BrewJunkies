@@ -5,6 +5,7 @@ import { LoginPage } from '@/pages/LoginPage';
 import { RegisterPage } from '@/pages/RegisterPage';
 import { CoffeeListPage } from '@/pages/CoffeeListPage';
 import { CoffeeDetailPage } from '@/pages/CoffeeDetailPage';
+import { CoffeeCreatePage } from '@/pages/CoffeeCreatePage';
 import { AnalyzePage } from '@/pages/AnalyzePage';
 import { EducationPage } from '@/pages/EducationPage';
 import { CategoryPage } from '@/pages/CategoryPage';
@@ -22,6 +23,7 @@ export default function App() {
           <Route path="login" element={<LoginPage />} />
           <Route path="register" element={<RegisterPage />} />
           <Route path="coffees" element={<CoffeeListPage />} />
+          <Route path="coffees/new" element={<CoffeeCreatePage />} />
           <Route path="coffees/:id" element={<CoffeeDetailPage />} />
           <Route path="analyze" element={<AnalyzePage />} />
           <Route path="learn" element={<EducationPage />} />

@@ -9,7 +9,7 @@ export function MainLayout() {
         <Outlet />
       </main>
       <footer className="border-t py-6 text-center text-sm text-muted-foreground">
-        <p>&copy; {new Date().getFullYear()} Coffee Education. Learn. Brew. Enjoy.</p>
+        <p>&copy; {new Date().getFullYear()} BrewJunkies. Learn. Brew. Enjoy.</p>
       </footer>
     </div>
   );

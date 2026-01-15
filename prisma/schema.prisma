@@ -17,15 +17,57 @@ model User {
   avatarUrl    String?
   googleId     String?  @unique
 
+  // AI Provider preferences
+  preferredProvider AIProvider @default(HOUSE_BLEND)
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   reviews   Review[]
   favorites Favorite[]
   analyses  BeanAnalysis[]
+  apiKeys   UserApiKey[]
 
   @@index([email])
   @@index([googleId])
+}
+
+// ==================== AI PROVIDER SETTINGS ====================
+
+enum AIProvider {
+  OPENAI
+  CLAUDE
+  GEMINI
+  HOUSE_BLEND // Free tier using app's API key
+}
+
+model UserApiKey {
+  id           String     @id @default(cuid())
+  userId       String
+  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  provider     AIProvider
+  encryptedKey String // AES-256-GCM encrypted
+  keyIv        String // Initialization vector
+  keyTag       String // Auth tag for GCM
+  isValid      Boolean    @default(true)
+  lastUsedAt   DateTime?
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  @@unique([userId, provider])
+  @@index([userId])
+}
+
+model FreeAnalysisUsage {
+  id     String    @id @default(cuid())
+  userId String? // For authenticated users
+  ipHash String? // For anonymous users (hashed IP)
+  date   DateTime  @db.Date // Just the date, not time
+  count  Int       @default(1)
+
+  @@unique([userId, date])
+  @@unique([ipHash, date])
+  @@index([date])
 }
 
 model RefreshToken {
@@ -178,13 +220,16 @@ model Image {
 model BeanAnalysis {
   id String @id @default(cuid())
 
-  imageId        String  // Reference to Image model
+  imageId        String // Reference to Image model
   identifiedBean String?
   confidence     Float?
   roastLevel     RoastLevel?
 
-  suggestedParams Json     @default("{}")
+  suggestedParams Json       @default("{}")
   observations    String[]
+
+  // Track which AI provider was used
+  provider AIProvider @default(HOUSE_BLEND)
 
   userId   String?
   user     User?   @relation(fields: [userId], references: [id], onDelete: SetNull)

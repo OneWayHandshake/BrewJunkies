@@ -2,6 +2,7 @@ import { User, Heart, Star, Scan } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 import { Button } from '@/components/ui/Button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
+import { AISettingsPanel } from '@/components/ai/AISettingsPanel';
 
 export function ProfilePage() {
   const { user } = useAuthStore();
@@ -104,6 +105,11 @@ export function ProfilePage() {
             </p>
           </CardContent>
         </Card>
+
+        {/* AI Settings */}
+        <div className="mt-6">
+          <AISettingsPanel />
+        </div>
       </div>
     </div>
   );

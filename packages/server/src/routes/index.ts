@@ -6,6 +6,7 @@ import reviewRoutes from './review.routes.js';
 import uploadRoutes from './upload.routes.js';
 import analyzeRoutes from './analyze.routes.js';
 import educationRoutes from './education.routes.js';
+import apiKeysRoutes from './api-keys.routes.js';
 
 const router = Router();
 
@@ -16,5 +17,6 @@ router.use('/reviews', reviewRoutes);
 router.use('/upload', uploadRoutes);
 router.use('/analyze', analyzeRoutes);
 router.use('/education', educationRoutes);
+router.use('/keys', apiKeysRoutes);
 
 export default router;

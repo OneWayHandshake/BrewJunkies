@@ -1,11 +1,13 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useDropzone } from 'react-dropzone';
-import { Upload, Loader2, Coffee, ThermometerSun, Clock, Scale } from 'lucide-react';
+import { Upload, Loader2, Coffee, ThermometerSun, Clock, Scale, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
 import { uploadImage, getImageUrl } from '@/services/uploadService';
 import { api } from '@/services/api';
-import type { AIAnalysisResult } from '@coffee/shared';
+import { ProviderChips } from '@/components/ai/ProviderSelect';
+import { useAISettingsStore } from '@/store/aiSettingsStore';
+import type { AIAnalysisResult, AIProviderType } from '@coffee/shared';
 
 export function AnalyzePage() {
   const [file, setFile] = useState<File | null>(null);
@@ -15,6 +17,18 @@ export function AnalyzePage() {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [result, setResult] = useState<AIAnalysisResult | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [selectedProvider, setSelectedProvider] = useState<AIProviderType>('HOUSE_BLEND');
+  const [usedProvider, setUsedProvider] = useState<string | null>(null);
+
+  const { preferredProvider, fetchSettings } = useAISettingsStore();
+
+  useEffect(() => {
+    fetchSettings();
+  }, [fetchSettings]);
+
+  useEffect(() => {
+    setSelectedProvider(preferredProvider);
+  }, [preferredProvider]);
 
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
     const selectedFile = acceptedFiles[0];
@@ -53,8 +67,12 @@ export function AnalyzePage() {
     setError(null);
 
     try {
-      const response = await api.post('/analyze', { imageId });
+      const response = await api.post('/analyze', {
+        imageId,
+        provider: selectedProvider,
+      });
       setResult(response.data.data.analysis);
+      setUsedProvider(response.data.data.providerDisplayName);
     } catch (err: unknown) {
       const errorMessage = (err as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Analysis failed. Please try again.';
       setError(errorMessage);
@@ -70,6 +88,7 @@ export function AnalyzePage() {
     setImageId(null);
     setResult(null);
     setError(null);
+    setUsedProvider(null);
   };
 
   return (
@@ -133,17 +152,32 @@ export function AnalyzePage() {
               )}
 
               {preview && (
-                <div className="flex gap-4 mt-6 justify-center">
-                  <Button variant="outline" onClick={resetAnalysis}>
-                    Choose Different Image
-                  </Button>
-                  <Button
-                    onClick={handleAnalyze}
-                    disabled={isAnalyzing || isUploading || !imageId}
-                  >
-                    {isAnalyzing && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                    Analyze Beans
-                  </Button>
+                <div className="mt-6 space-y-4">
+                  {/* Provider Selection */}
+                  <div className="border-t pt-4">
+                    <p className="text-sm font-medium mb-2 flex items-center gap-2">
+                      <Sparkles className="h-4 w-4" />
+                      Choose AI Provider
+                    </p>
+                    <ProviderChips
+                      value={selectedProvider}
+                      onChange={setSelectedProvider}
+                      disabled={isAnalyzing}
+                    />
+                  </div>
+
+                  <div className="flex gap-4 justify-center">
+                    <Button variant="outline" onClick={resetAnalysis}>
+                      Choose Different Image
+                    </Button>
+                    <Button
+                      onClick={handleAnalyze}
+                      disabled={isAnalyzing || isUploading || !imageId}
+                    >
+                      {isAnalyzing && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                      Analyze Beans
+                    </Button>
+                  </div>
                 </div>
               )}
             </CardContent>
@@ -151,7 +185,15 @@ export function AnalyzePage() {
         ) : (
           <div className="space-y-6">
             <div className="flex justify-between items-center">
-              <h2 className="text-2xl font-bold">Analysis Results</h2>
+              <div>
+                <h2 className="text-2xl font-bold">Analysis Results</h2>
+                {usedProvider && (
+                  <p className="text-sm text-muted-foreground flex items-center gap-1 mt-1">
+                    <Sparkles className="h-3 w-3" />
+                    Analyzed with {usedProvider}
+                  </p>
+                )}
+              </div>
               <Button variant="outline" onClick={resetAnalysis}>
                 Analyze Another
               </Button>

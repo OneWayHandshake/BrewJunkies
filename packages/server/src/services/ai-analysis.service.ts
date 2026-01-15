@@ -96,7 +96,7 @@ export const aiAnalysisService = {
       const raw: RawAnalysisResponse = JSON.parse(content);
 
       if (!raw.identified) {
-        throw new AppError(400, 'Could not identify coffee beans in the image. Please upload a clear photo of coffee beans.');
+        throw new AppError(400, 'Could not identify a coffee bag in the image. Please upload a clear photo of a coffee bag or package.');
       }
 
       return this.transformAnalysis(raw, imageUrl);
