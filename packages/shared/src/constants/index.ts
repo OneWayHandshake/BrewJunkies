@@ -128,3 +128,6 @@ export const COFFEE_ORIGINS = [
   'Nicaragua',
   'El Salvador',
 ] as const;
+
+// Export achievements
+export * from './achievements.js';

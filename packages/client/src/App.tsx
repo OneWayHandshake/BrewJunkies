@@ -11,6 +11,7 @@ import { EducationPage } from '@/pages/EducationPage';
 import { CategoryPage } from '@/pages/CategoryPage';
 import { ArticlePage } from '@/pages/ArticlePage';
 import { ProfilePage } from '@/pages/ProfilePage';
+import { PassportPage } from '@/pages/PassportPage';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import { Toaster } from '@/components/ui/Toaster';
 
@@ -31,6 +32,7 @@ export default function App() {
           <Route path="learn/:slug" element={<ArticlePage />} />
           <Route element={<ProtectedRoute />}>
             <Route path="profile" element={<ProfilePage />} />
+            <Route path="passport" element={<PassportPage />} />
           </Route>
         </Route>
       </Routes>

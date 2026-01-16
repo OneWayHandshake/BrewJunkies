@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { z } from 'zod';
 import { prisma } from '../config/database.js';
 import { AppError } from '../middleware/error.middleware.js';
+import { passportService } from '../services/passport.service.js';
 
 const createReviewSchema = z.object({
   coffeeId: z.string(),
@@ -58,6 +59,9 @@ export const reviewController = {
           },
         },
       });
+
+      // Auto-add to passport when reviewing
+      await passportService.addToPassport(req.user!.id, data.coffeeId, 'REVIEW');
 
       res.status(201).json({
         status: 'success',

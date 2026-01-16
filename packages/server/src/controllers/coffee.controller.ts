@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { prisma } from '../config/database.js';
 import { AppError } from '../middleware/error.middleware.js';
 import type { RoastLevel, ProcessMethod } from '@coffee/shared';
+import { passportService } from '../services/passport.service.js';
 
 export const coffeeController = {
   async getAll(req: Request, res: Response, next: NextFunction) {
@@ -156,6 +157,11 @@ export const coffeeController = {
       const coffee = await prisma.coffee.create({
         data: req.body,
       });
+
+      // Auto-add to passport when user creates a coffee
+      if (req.user) {
+        await passportService.addToPassport(req.user.id, coffee.id, 'CREATED');
+      }
 
       res.status(201).json({
         status: 'success',

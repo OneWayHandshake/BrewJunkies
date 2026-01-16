@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, User, LogOut, X } from 'lucide-react';
+import { Menu, User, LogOut, X, Globe } from 'lucide-react';
 import { useState } from 'react';
 import { useAuthStore } from '@/store/authStore';
 import { Button } from '@/components/ui/Button';
@@ -15,8 +15,12 @@ export function Header() {
   const navLinks = [
     { href: '/coffees', label: 'Coffees' },
     { href: '/analyze', label: 'Analyze Beans' },
+    { href: '/passport', label: 'Passport', requiresAuth: true },
     { href: '/learn', label: 'Learn' },
   ];
+
+  // Filter nav links based on auth status
+  const visibleNavLinks = navLinks.filter(link => !link.requiresAuth || isAuthenticated);
 
   return (
     <header className="sticky top-0 z-50 border-b border-border/50 bg-background/80 backdrop-blur-lg supports-[backdrop-filter]:bg-background/60">
@@ -38,7 +42,7 @@ export function Header() {
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-1">
-            {navLinks.map(({ href, label }) => (
+            {visibleNavLinks.map(({ href, label }) => (
               <Link
                 key={href}
                 to={href}
@@ -110,7 +114,7 @@ export function Header() {
         {mobileMenuOpen && (
           <div className="md:hidden py-4 border-t border-border/50 animate-slide-up">
             <nav className="flex flex-col gap-1">
-              {navLinks.map(({ href, label }) => (
+              {visibleNavLinks.map(({ href, label }) => (
                 <Link
                   key={href}
                   to={href}

@@ -23,10 +23,12 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  reviews   Review[]
-  favorites Favorite[]
-  analyses  BeanAnalysis[]
-  apiKeys   UserApiKey[]
+  reviews      Review[]
+  favorites    Favorite[]
+  analyses     BeanAnalysis[]
+  apiKeys      UserApiKey[]
+  triedCoffees UserCoffee[]
+  achievements UserAchievement[]
 
   @@index([email])
   @@index([googleId])
@@ -119,9 +121,10 @@ model Coffee {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  reviews   Review[]
-  favorites Favorite[]
-  analyses  BeanAnalysis[]
+  reviews    Review[]
+  favorites  Favorite[]
+  analyses   BeanAnalysis[]
+  usersTried UserCoffee[]
 
   @@index([origin])
   @@index([roastLevel])
@@ -283,4 +286,41 @@ enum ContentCategory {
   CULTURE
   LOCATIONS
   SCIENCE
+}
+
+// ==================== COFFEE PASSPORT ====================
+
+model UserCoffee {
+  id       String       @id @default(cuid())
+  userId   String
+  user     User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  coffeeId String
+  coffee   Coffee       @relation(fields: [coffeeId], references: [id], onDelete: Cascade)
+  source   CoffeeSource @default(MANUAL)
+  triedAt  DateTime     @default(now())
+
+  createdAt DateTime @default(now())
+
+  @@unique([userId, coffeeId])
+  @@index([userId])
+  @@index([coffeeId])
+}
+
+enum CoffeeSource {
+  MANUAL
+  REVIEW
+  ANALYSIS
+  CREATED
+}
+
+model UserAchievement {
+  id               String   @id @default(cuid())
+  userId           String
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  achievementKey   String
+  unlockedAt       DateTime @default(now())
+  progressSnapshot Json?
+
+  @@unique([userId, achievementKey])
+  @@index([userId])
 }
