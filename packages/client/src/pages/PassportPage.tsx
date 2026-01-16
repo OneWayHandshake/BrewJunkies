@@ -12,7 +12,7 @@ import { api } from '@/services/api';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
 import { AchievementBadge } from '@/components/passport/AchievementBadge';
 import { PassportStats } from '@/components/passport/PassportStats';
-import { OriginMap } from '@/components/passport/OriginMap';
+import { WorldMap } from '@/components/passport/WorldMap';
 
 interface PassportStatsData {
   totalCoffees: number;
@@ -301,7 +301,7 @@ export function PassportPage() {
           </div>
         )}
 
-        {activeTab === 'origins' && <OriginMap origins={stats?.origins || []} />}
+        {activeTab === 'origins' && <WorldMap visitedOrigins={stats?.origins || []} />}
       </div>
     </div>
   );
