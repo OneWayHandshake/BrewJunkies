@@ -3,7 +3,7 @@ import { useDropzone } from 'react-dropzone';
 import { Upload, Loader2, Coffee, ThermometerSun, Clock, Scale, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
-import { uploadImage, getImageUrl } from '@/services/uploadService';
+import { uploadImage } from '@/services/uploadService';
 import { api } from '@/services/api';
 import { ProviderChips } from '@/components/ai/ProviderSelect';
 import { useAISettingsStore } from '@/store/aiSettingsStore';
@@ -204,7 +204,7 @@ export function AnalyzePage() {
               <Card>
                 <CardContent className="p-4">
                   <img
-                    src={imageId ? getImageUrl(imageId) : preview!}
+                    src={preview!}
                     alt="Analyzed beans"
                     className="w-full rounded-lg"
                   />
