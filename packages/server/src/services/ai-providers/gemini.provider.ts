@@ -11,8 +11,8 @@ import {
 
 export class GeminiProvider implements AIProviderInterface {
   readonly name = 'GEMINI';
-  readonly displayName = 'Gemini 2.0 Flash';
-  readonly model = 'gemini-2.0-flash';
+  readonly displayName = 'Gemini 2.5 Flash';
+  readonly model = 'gemini-2.5-flash';
 
   validateKeyFormat(key: string): boolean {
     // Google API keys are typically 39 characters and start with 'AIza'

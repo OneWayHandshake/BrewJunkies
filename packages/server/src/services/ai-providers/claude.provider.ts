@@ -11,8 +11,8 @@ import {
 
 export class ClaudeProvider implements AIProviderInterface {
   readonly name = 'CLAUDE';
-  readonly displayName = 'Claude 3.5 Sonnet';
-  readonly model = 'claude-3-5-sonnet-20241022';
+  readonly displayName = 'Claude Sonnet 4';
+  readonly model = 'claude-sonnet-4-20250514';
 
   validateKeyFormat(key: string): boolean {
     // Anthropic keys start with 'sk-ant-' and are quite long
