@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -25,8 +25,11 @@ type RegisterFormData = z.infer<typeof registerSchema>;
 
 export function RegisterPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { register: registerUser, loginWithGoogle, isLoading } = useAuthStore();
   const [error, setError] = useState<string | null>(null);
+
+  const from = (location.state as { from?: { pathname: string } })?.from?.pathname || '/';
 
   const {
     register,
@@ -44,7 +47,7 @@ export function RegisterPage() {
         email: data.email,
         password: data.password,
       });
-      navigate('/');
+      navigate(from, { replace: true });
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Registration failed. Please try again.';
       setError(message);
@@ -138,7 +141,7 @@ export function RegisterPage() {
           <Button
             variant="outline"
             className="w-full"
-            onClick={loginWithGoogle}
+            onClick={() => loginWithGoogle(from)}
             disabled={isLoading}
           >
             <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">
@@ -164,7 +167,7 @@ export function RegisterPage() {
 
           <p className="text-center text-sm text-muted-foreground mt-6">
             Already have an account?{' '}
-            <Link to="/login" className="text-primary hover:underline font-medium">
+            <Link to="/login" state={{ from: { pathname: from } }} className="text-primary hover:underline font-medium">
               Sign in
             </Link>
           </p>

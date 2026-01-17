@@ -109,7 +109,7 @@ export function LoginPage() {
           <Button
             variant="outline"
             className="w-full"
-            onClick={loginWithGoogle}
+            onClick={() => loginWithGoogle(from)}
             disabled={isLoading}
           >
             <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">
@@ -135,7 +135,7 @@ export function LoginPage() {
 
           <p className="text-center text-sm text-muted-foreground mt-6">
             Don&apos;t have an account?{' '}
-            <Link to="/register" className="text-primary hover:underline font-medium">
+            <Link to="/register" state={{ from: { pathname: from } }} className="text-primary hover:underline font-medium">
               Sign up
             </Link>
           </p>

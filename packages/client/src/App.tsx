@@ -3,6 +3,7 @@ import { MainLayout } from '@/components/layout/MainLayout';
 import { HomePage } from '@/pages/HomePage';
 import { LoginPage } from '@/pages/LoginPage';
 import { RegisterPage } from '@/pages/RegisterPage';
+import { AuthCallbackPage } from '@/pages/AuthCallbackPage';
 import { CoffeeListPage } from '@/pages/CoffeeListPage';
 import { CoffeeDetailPage } from '@/pages/CoffeeDetailPage';
 import { CoffeeCreatePage } from '@/pages/CoffeeCreatePage';
@@ -31,16 +32,17 @@ export default function App() {
           <Route index element={<HomePage />} />
           <Route path="login" element={<LoginPage />} />
           <Route path="register" element={<RegisterPage />} />
-          <Route path="coffees" element={<CoffeeListPage />} />
-          <Route path="coffees/new" element={<CoffeeCreatePage />} />
-          <Route path="coffees/:id" element={<CoffeeDetailPage />} />
-          <Route path="analyze" element={<AnalyzePage />} />
+          <Route path="auth/callback" element={<AuthCallbackPage />} />
           <Route path="learn" element={<EducationPage />} />
           <Route path="learn/category/:category" element={<CategoryPage />} />
           <Route path="learn/:slug" element={<ArticlePage />} />
           <Route path="brew" element={<BrewPage />} />
           <Route path="recipes/community" element={<CommunityRecipesPage />} />
           <Route element={<ProtectedRoute />}>
+            <Route path="analyze" element={<AnalyzePage />} />
+            <Route path="coffees" element={<CoffeeListPage />} />
+            <Route path="coffees/new" element={<CoffeeCreatePage />} />
+            <Route path="coffees/:id" element={<CoffeeDetailPage />} />
             <Route path="profile" element={<ProfilePage />} />
             <Route path="passport" element={<PassportPage />} />
             <Route path="brew/timer" element={<BrewTimerPage />} />

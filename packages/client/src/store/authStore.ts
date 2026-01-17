@@ -11,7 +11,7 @@ interface AuthState {
 
   login: (credentials: LoginCredentials) => Promise<void>;
   register: (data: RegisterData) => Promise<void>;
-  loginWithGoogle: () => void;
+  loginWithGoogle: (redirectUrl?: string) => void;
   logout: () => void;
   setAccessToken: (token: string) => void;
   refreshToken: () => Promise<void>;
@@ -60,7 +60,11 @@ export const useAuthStore = create<AuthState>()(
         }
       },
 
-      loginWithGoogle: () => {
+      loginWithGoogle: (redirectUrl?: string) => {
+        // Store the redirect URL for after OAuth callback
+        if (redirectUrl) {
+          sessionStorage.setItem('oauth_redirect_url', redirectUrl);
+        }
         window.location.href = `${import.meta.env.VITE_API_URL || ''}/api/auth/google`;
       },
 
