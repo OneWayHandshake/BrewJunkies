@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import multer from 'multer';
-import { authenticate, optionalAuth } from '../middleware/auth.middleware.js';
+import { authenticate } from '../middleware/auth.middleware.js';
 import { uploadController } from '../controllers/upload.controller.js';
 
 const router = Router();
@@ -20,14 +20,14 @@ const upload = multer({
   },
 });
 
-// Upload image (auth optional - can upload without account)
-router.post('/', optionalAuth, upload.single('image'), uploadController.upload);
+// Upload image (requires auth)
+router.post('/', authenticate, upload.single('image'), uploadController.upload);
 
 // Get image by ID (serves raw image)
-router.get('/:id', uploadController.getImage);
+router.get('/:id', authenticate, uploadController.getImage);
 
 // Get image as base64 data URL (for AI analysis)
-router.get('/:id/base64', uploadController.getImageBase64);
+router.get('/:id/base64', authenticate, uploadController.getImageBase64);
 
 // Delete image (requires auth)
 router.delete('/:id', authenticate, uploadController.deleteImage);

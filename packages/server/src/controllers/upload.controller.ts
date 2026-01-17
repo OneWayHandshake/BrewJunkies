@@ -5,6 +5,10 @@ import { AppError } from '../middleware/error.middleware.js';
 export const uploadController = {
   async upload(req: Request, res: Response, next: NextFunction) {
     try {
+      if (!req.user) {
+        throw new AppError(401, 'Authentication required');
+      }
+
       if (!req.file) {
         throw new AppError(400, 'No file uploaded');
       }
@@ -28,7 +32,7 @@ export const uploadController = {
           mimeType: mimetype,
           size,
           data: buffer,
-          userId: req.user?.id,
+          userId: req.user.id,
         },
       });
 
@@ -56,6 +60,14 @@ export const uploadController = {
         throw new AppError(404, 'Image not found');
       }
 
+      if (!req.user) {
+        throw new AppError(401, 'Authentication required');
+      }
+
+      if (!image.userId || image.userId !== req.user.id) {
+        throw new AppError(403, 'Not authorized to access this image');
+      }
+
       res.set('Content-Type', image.mimeType);
       res.set('Content-Length', image.size.toString());
       res.set('Cache-Control', 'public, max-age=31536000');
@@ -73,6 +85,14 @@ export const uploadController = {
 
       if (!image) {
         throw new AppError(404, 'Image not found');
+      }
+
+      if (!req.user) {
+        throw new AppError(401, 'Authentication required');
+      }
+
+      if (!image.userId || image.userId !== req.user.id) {
+        throw new AppError(403, 'Not authorized to access this image');
       }
 
       const base64 = Buffer.from(image.data).toString('base64');

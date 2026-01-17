@@ -4,6 +4,7 @@ import helmet from 'helmet';
 import morgan from 'morgan';
 import passport from 'passport';
 import rateLimit from 'express-rate-limit';
+import cookieParser from 'cookie-parser';
 
 import { configurePassport } from './config/passport.js';
 import { errorHandler } from './middleware/error.middleware.js';
@@ -47,6 +48,7 @@ app.use(limiter);
 // Body parsing
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
 
 // Logging
 if (process.env.NODE_ENV !== 'test') {

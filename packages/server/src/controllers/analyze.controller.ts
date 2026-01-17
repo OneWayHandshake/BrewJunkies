@@ -42,6 +42,14 @@ export const analyzeController = {
         throw new AppError(404, 'Image not found');
       }
 
+      if (!req.user) {
+        throw new AppError(401, 'Authentication required');
+      }
+
+      if (!image.userId || image.userId !== req.user.id) {
+        throw new AppError(403, 'Not authorized to access this image');
+      }
+
       // Convert to base64 data URL
       const base64 = Buffer.from(image.data).toString('base64');
       const dataUrl = `data:${image.mimeType};base64,${base64}`;
