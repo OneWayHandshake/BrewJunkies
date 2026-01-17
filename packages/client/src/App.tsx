@@ -37,8 +37,8 @@ export default function App() {
           <Route path="learn/category/:category" element={<CategoryPage />} />
           <Route path="learn/:slug" element={<ArticlePage />} />
           <Route path="brew" element={<BrewPage />} />
-          <Route path="recipes/community" element={<CommunityRecipesPage />} />
           <Route element={<ProtectedRoute />}>
+            <Route path="recipes/community" element={<CommunityRecipesPage />} />
             <Route path="analyze" element={<AnalyzePage />} />
             <Route path="coffees" element={<CoffeeListPage />} />
             <Route path="coffees/new" element={<CoffeeCreatePage />} />
