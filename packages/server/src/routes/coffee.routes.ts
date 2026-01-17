@@ -1,17 +1,18 @@
 import { Router } from 'express';
-import { authenticate, optionalAuth } from '../middleware/auth.middleware.js';
+import { authenticate } from '../middleware/auth.middleware.js';
 import { coffeeController } from '../controllers/coffee.controller.js';
 
 const router = Router();
 
-router.get('/', optionalAuth, coffeeController.getAll);
-router.get('/:id', optionalAuth, coffeeController.getById);
+// All coffee routes require authentication - coffees are user-specific
+router.get('/', authenticate, coffeeController.getAll);
+router.get('/:id', authenticate, coffeeController.getById);
 router.post('/', authenticate, coffeeController.create);
 router.patch('/:id', authenticate, coffeeController.update);
 router.delete('/:id', authenticate, coffeeController.delete);
 
 // Reviews for a specific coffee
-router.get('/:id/reviews', coffeeController.getReviews);
+router.get('/:id/reviews', authenticate, coffeeController.getReviews);
 
 // Favorites
 router.post('/:id/favorite', authenticate, coffeeController.addFavorite);

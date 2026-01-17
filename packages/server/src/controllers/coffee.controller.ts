@@ -7,6 +7,11 @@ import { passportService } from '../services/passport.service.js';
 export const coffeeController = {
   async getAll(req: Request, res: Response, next: NextFunction) {
     try {
+      // Require authentication - only show user's own coffees
+      if (!req.user) {
+        throw new AppError(401, 'Authentication required');
+      }
+
       const {
         origin,
         roastLevel,
@@ -21,7 +26,9 @@ export const coffeeController = {
       const limitNum = Math.min(parseInt(limit as string), 100);
       const skip = (pageNum - 1) * limitNum;
 
-      const where: Record<string, unknown> = {};
+      const where: Record<string, unknown> = {
+        userId: req.user.id, // Only show user's own coffees
+      };
 
       if (origin) {
         where.origin = { in: (origin as string).split(',') };
@@ -107,6 +114,10 @@ export const coffeeController = {
 
   async getById(req: Request, res: Response, next: NextFunction) {
     try {
+      if (!req.user) {
+        throw new AppError(401, 'Authentication required');
+      }
+
       const coffee = await prisma.coffee.findUnique({
         where: { id: req.params.id },
         include: {
@@ -118,6 +129,11 @@ export const coffeeController = {
         throw new AppError(404, 'Coffee not found');
       }
 
+      // Check ownership
+      if (coffee.userId !== req.user.id) {
+        throw new AppError(403, 'Not authorized to access this coffee');
+      }
+
       // Get average rating
       const avgRating = await prisma.review.aggregate({
         where: { coffeeId: coffee.id },
@@ -125,18 +141,14 @@ export const coffeeController = {
       });
 
       // Check if user has favorited
-      let isFavorite = false;
-      if (req.user) {
-        const favorite = await prisma.favorite.findUnique({
-          where: {
-            userId_coffeeId: {
-              userId: req.user.id,
-              coffeeId: coffee.id,
-            },
+      const favorite = await prisma.favorite.findUnique({
+        where: {
+          userId_coffeeId: {
+            userId: req.user.id,
+            coffeeId: coffee.id,
           },
-        });
-        isFavorite = !!favorite;
-      }
+        },
+      });
 
       res.json({
         status: 'success',
@@ -144,7 +156,7 @@ export const coffeeController = {
           ...coffee,
           averageRating: avgRating._avg.rating,
           reviewCount: coffee._count.reviews,
-          isFavorite,
+          isFavorite: !!favorite,
         },
       });
     } catch (error) {
@@ -154,14 +166,19 @@ export const coffeeController = {
 
   async create(req: Request, res: Response, next: NextFunction) {
     try {
+      if (!req.user) {
+        throw new AppError(401, 'Authentication required');
+      }
+
       const coffee = await prisma.coffee.create({
-        data: req.body,
+        data: {
+          ...req.body,
+          userId: req.user.id, // Set owner
+        },
       });
 
       // Auto-add to passport when user creates a coffee
-      if (req.user) {
-        await passportService.addToPassport(req.user.id, coffee.id, 'CREATED');
-      }
+      await passportService.addToPassport(req.user.id, coffee.id, 'CREATED');
 
       res.status(201).json({
         status: 'success',
@@ -174,6 +191,24 @@ export const coffeeController = {
 
   async update(req: Request, res: Response, next: NextFunction) {
     try {
+      if (!req.user) {
+        throw new AppError(401, 'Authentication required');
+      }
+
+      // Check ownership first
+      const existing = await prisma.coffee.findUnique({
+        where: { id: req.params.id },
+        select: { userId: true },
+      });
+
+      if (!existing) {
+        throw new AppError(404, 'Coffee not found');
+      }
+
+      if (existing.userId !== req.user.id) {
+        throw new AppError(403, 'Not authorized to update this coffee');
+      }
+
       const coffee = await prisma.coffee.update({
         where: { id: req.params.id },
         data: req.body,
@@ -190,6 +225,24 @@ export const coffeeController = {
 
   async delete(req: Request, res: Response, next: NextFunction) {
     try {
+      if (!req.user) {
+        throw new AppError(401, 'Authentication required');
+      }
+
+      // Check ownership first
+      const existing = await prisma.coffee.findUnique({
+        where: { id: req.params.id },
+        select: { userId: true },
+      });
+
+      if (!existing) {
+        throw new AppError(404, 'Coffee not found');
+      }
+
+      if (existing.userId !== req.user.id) {
+        throw new AppError(403, 'Not authorized to delete this coffee');
+      }
+
       await prisma.coffee.delete({
         where: { id: req.params.id },
       });

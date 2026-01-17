@@ -23,6 +23,7 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  coffees      Coffee[]
   reviews      Review[]
   favorites    Favorite[]
   analyses     BeanAnalysis[]
@@ -95,6 +96,10 @@ model Coffee {
   description String?
   notes       String? // Personal notes/comments from user
 
+  // Owner
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   // Origin information
   origin   String
   region   String?
@@ -132,6 +137,7 @@ model Coffee {
   brewLogs      BrewLog[]
   grindSettings GrindSetting[]
 
+  @@index([userId])
   @@index([origin])
   @@index([roastLevel])
   @@index([name])
