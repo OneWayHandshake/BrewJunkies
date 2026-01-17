@@ -1,8 +1,9 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, User, LogOut, X, Globe } from 'lucide-react';
+import { Menu, User, LogOut, X } from 'lucide-react';
 import { useState } from 'react';
 import { useAuthStore } from '@/store/authStore';
 import { Button } from '@/components/ui/Button';
+import { ThemeToggle } from '@/components/ui/ThemeToggle';
 import { CoffeeBean } from '@/components/decorative';
 
 export function Header() {
@@ -13,8 +14,13 @@ export function Header() {
   const isActive = (path: string) => location.pathname === path || location.pathname.startsWith(path + '/');
 
   const navLinks = [
+    { href: '/analyze', label: 'Beanalysis' },
     { href: '/coffees', label: 'Coffees' },
-    { href: '/analyze', label: 'Analyze Beans' },
+    { href: '/brew', label: 'Brew' },
+    { href: '/grinders', label: 'Grinders', requiresAuth: true },
+    { href: '/recipes/community', label: 'Community' },
+    { href: '/journal', label: 'Journal', requiresAuth: true },
+    { href: '/stats', label: 'Stats', requiresAuth: true },
     { href: '/passport', label: 'Passport', requiresAuth: true },
     { href: '/learn', label: 'Learn' },
   ];
@@ -63,7 +69,8 @@ export function Header() {
           </nav>
 
           {/* Right side actions */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
+            <ThemeToggle />
             {isAuthenticated ? (
               <>
                 <Link to="/profile">

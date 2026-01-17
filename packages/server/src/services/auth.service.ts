@@ -23,7 +23,7 @@ interface AuthResult {
   };
 }
 
-const ACCESS_TOKEN_EXPIRY = '15m';
+const ACCESS_TOKEN_EXPIRY = '1h';
 const REFRESH_TOKEN_EXPIRY = '7d';
 
 function sanitizeUser(user: User): Omit<User, 'passwordHash'> {

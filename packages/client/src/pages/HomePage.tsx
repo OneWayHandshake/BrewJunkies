@@ -11,8 +11,12 @@ import {
   HillsSilhouette,
   CoffeeBean
 } from '@/components/decorative';
+import { RecentActivityWidget } from '@/components/home/RecentActivityWidget';
+import { useAuthStore } from '@/store/authStore';
 
 export function HomePage() {
+  const { isAuthenticated } = useAuthStore();
+
   return (
     <div className="flex flex-col overflow-hidden">
       {/* Hero Section */}
@@ -34,7 +38,7 @@ export function HomePage() {
             </h1>
 
             <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-10 animate-slide-up delay-200 leading-relaxed" style={{ opacity: 0 }}>
-              Learn about coffee origins from 50 countries, analyze your beans with AI,
+              Learn about coffee origins from 50 countries, use Beanalysis to understand your beans,
               and find the perfect brew parameters for every cup.
             </p>
 
@@ -42,7 +46,7 @@ export function HomePage() {
               <Link to="/analyze">
                 <Button size="lg" className="gap-3 text-base px-8 py-6 rounded-2xl shadow-soft-lg hover:shadow-soft-xl transition-all duration-300 hover:-translate-y-1">
                   <Scan className="h-5 w-5" />
-                  Analyze Your Beans
+                  Try Beanalysis
                 </Button>
               </Link>
               <Link to="/learn">
@@ -61,6 +65,17 @@ export function HomePage() {
         </div>
       </section>
 
+      {/* Recent Activity for authenticated users */}
+      {isAuthenticated && (
+        <section className="py-12 bg-muted/30">
+          <div className="container mx-auto px-4">
+            <div className="max-w-md mx-auto">
+              <RecentActivityWidget />
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* Features Section */}
       <section className="py-24 md:py-32 relative">
         <CornerBranches className="opacity-40" />
@@ -72,7 +87,7 @@ export function HomePage() {
               <span className="text-terracotta block mt-1">Brew Better Coffee</span>
             </h2>
             <p className="text-muted-foreground text-lg max-w-xl mx-auto">
-              From bean analysis to brewing guides, we've got you covered.
+              From Beanalysis to brewing guides, we've got you covered.
             </p>
           </div>
 
@@ -84,9 +99,9 @@ export function HomePage() {
                 <div className="w-14 h-14 rounded-2xl bg-sage-light flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
                   <Scan className="h-7 w-7 text-sage-dark" />
                 </div>
-                <CardTitle className="text-xl font-display">AI Bean Analysis</CardTitle>
+                <CardTitle className="text-xl font-display">Beanalysis</CardTitle>
                 <CardDescription className="text-base leading-relaxed">
-                  Upload a photo of your coffee beans and get instant analysis with roast level,
+                  Upload a photo of your coffee beans and get instant AI analysis with roast level,
                   suggested brew parameters, and tasting notes.
                 </CardDescription>
               </CardHeader>
@@ -111,7 +126,7 @@ export function HomePage() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <Link to="/learn/locations" className="text-terracotta font-medium inline-flex items-center gap-2 group-hover:gap-3 transition-all">
+                <Link to="/learn/category/locations" className="text-terracotta font-medium inline-flex items-center gap-2 group-hover:gap-3 transition-all">
                   Explore origins <ArrowRight className="h-4 w-4" />
                 </Link>
               </CardContent>
@@ -152,7 +167,7 @@ export function HomePage() {
             </div>
             <div className="space-y-2">
               <div className="text-4xl md:text-5xl font-display font-semibold text-terracotta">AI</div>
-              <div className="text-muted-foreground">Bean Analysis</div>
+              <div className="text-muted-foreground">Beanalysis</div>
             </div>
             <div className="space-y-2">
               <div className="text-4xl md:text-5xl font-display font-semibold text-olive">6+</div>
@@ -199,7 +214,7 @@ export function HomePage() {
                 <div className="w-24 h-24 rounded-full bg-terracotta-light flex items-center justify-center mx-auto mb-6 relative z-10 border-4 border-background">
                   <Sparkles className="h-10 w-10 text-terracotta" />
                 </div>
-                <h3 className="text-xl font-display font-semibold mb-2">AI Analysis</h3>
+                <h3 className="text-xl font-display font-semibold mb-2">Beanalysis</h3>
                 <p className="text-muted-foreground">
                   Our AI analyzes roast level, suggests brew parameters and tasting notes
                 </p>

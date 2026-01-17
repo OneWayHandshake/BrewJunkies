@@ -6,6 +6,7 @@ const router = Router();
 
 router.get('/me', authenticate, userController.getMe);
 router.patch('/me', authenticate, userController.updateMe);
+router.get('/me/stats', authenticate, userController.getProfileStats);
 router.get('/me/favorites', authenticate, userController.getFavorites);
 router.get('/me/reviews', authenticate, userController.getReviews);
 

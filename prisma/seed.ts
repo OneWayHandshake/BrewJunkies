@@ -7,6 +7,221 @@ const coffees: any[] = [
   // Add your own coffees here or use the app to create them
 ];
 
+// Default brew recipes
+const defaultRecipes = [
+  {
+    name: 'Hoffmann V60 Method',
+    description: 'James Hoffmann\'s famous V60 technique for a clean, balanced cup.',
+    brewMethod: 'POUR_OVER',
+    isDefault: true,
+    coffeeAmount: 15,
+    waterAmount: 250,
+    ratio: '1:16.7',
+    waterTemp: 95,
+    grindSize: 'Medium-fine',
+    totalTime: 210, // 3:30
+    author: 'James Hoffmann',
+    source: 'YouTube',
+    steps: [
+      { id: '1', order: 1, type: 'bloom', instruction: 'Add 30g water, swirl gently to saturate all grounds', duration: 45, pourAmount: 30, targetWeight: 30 },
+      { id: '2', order: 2, type: 'pour', instruction: 'Pour in circles to 150g total', duration: 30, pourAmount: 120, targetWeight: 150 },
+      { id: '3', order: 3, type: 'wait', instruction: 'Let water drain through', duration: 30 },
+      { id: '4', order: 4, type: 'pour', instruction: 'Final pour to 250g, gentle circles', duration: 30, pourAmount: 100, targetWeight: 250 },
+      { id: '5', order: 5, type: 'wait', instruction: 'Give a gentle swirl and let drain completely', duration: 75 },
+    ],
+  },
+  {
+    name: '4:6 Method (Tetsu Kasuya)',
+    description: 'World Brewers Cup winning technique allowing precise flavor control.',
+    brewMethod: 'POUR_OVER',
+    isDefault: true,
+    coffeeAmount: 20,
+    waterAmount: 300,
+    ratio: '1:15',
+    waterTemp: 92,
+    grindSize: 'Medium-coarse',
+    totalTime: 210, // 3:30
+    author: 'Tetsu Kasuya',
+    source: '2016 World Brewers Cup',
+    steps: [
+      { id: '1', order: 1, type: 'pour', instruction: 'First pour: 60g for sweetness/acidity balance', duration: 15, pourAmount: 60, targetWeight: 60 },
+      { id: '2', order: 2, type: 'wait', instruction: 'Wait for water to drain', duration: 30 },
+      { id: '3', order: 3, type: 'pour', instruction: 'Second pour: 60g for strength', duration: 15, pourAmount: 60, targetWeight: 120 },
+      { id: '4', order: 4, type: 'wait', instruction: 'Wait for water to drain', duration: 30 },
+      { id: '5', order: 5, type: 'pour', instruction: 'Third pour: 60g', duration: 15, pourAmount: 60, targetWeight: 180 },
+      { id: '6', order: 6, type: 'wait', instruction: 'Wait for water to drain', duration: 30 },
+      { id: '7', order: 7, type: 'pour', instruction: 'Fourth pour: 60g', duration: 15, pourAmount: 60, targetWeight: 240 },
+      { id: '8', order: 8, type: 'wait', instruction: 'Wait for water to drain', duration: 20 },
+      { id: '9', order: 9, type: 'pour', instruction: 'Fifth pour: 60g', duration: 10, pourAmount: 60, targetWeight: 300 },
+      { id: '10', order: 10, type: 'wait', instruction: 'Let drain completely', duration: 30 },
+    ],
+  },
+  {
+    name: 'Classic AeroPress',
+    description: 'The standard AeroPress technique for a clean, full-bodied cup.',
+    brewMethod: 'AEROPRESS',
+    isDefault: true,
+    coffeeAmount: 17,
+    waterAmount: 220,
+    ratio: '1:13',
+    waterTemp: 85,
+    grindSize: 'Fine-medium',
+    totalTime: 120, // 2:00
+    author: 'AeroPress Inc.',
+    source: 'Official Instructions',
+    steps: [
+      { id: '1', order: 1, type: 'pour', instruction: 'Add coffee, then pour water to the 4 mark', duration: 10, pourAmount: 220 },
+      { id: '2', order: 2, type: 'stir', instruction: 'Stir vigorously for 10 seconds', duration: 10 },
+      { id: '3', order: 3, type: 'wait', instruction: 'Steep for 1 minute', duration: 60 },
+      { id: '4', order: 4, type: 'press', instruction: 'Press slowly and steadily for 30-40 seconds', duration: 40 },
+    ],
+  },
+  {
+    name: 'Inverted AeroPress',
+    description: 'Popular inverted method for full immersion and more control.',
+    brewMethod: 'AEROPRESS',
+    isDefault: true,
+    coffeeAmount: 15,
+    waterAmount: 200,
+    ratio: '1:13.3',
+    waterTemp: 90,
+    grindSize: 'Medium',
+    totalTime: 150, // 2:30
+    author: 'Community Favorite',
+    steps: [
+      { id: '1', order: 1, type: 'bloom', instruction: 'Add coffee, pour 50g water, stir gently', duration: 15, pourAmount: 50, targetWeight: 50 },
+      { id: '2', order: 2, type: 'wait', instruction: 'Bloom for 30 seconds', duration: 30 },
+      { id: '3', order: 3, type: 'pour', instruction: 'Fill remaining water to 200g', duration: 15, pourAmount: 150, targetWeight: 200 },
+      { id: '4', order: 4, type: 'wait', instruction: 'Steep for 1 minute', duration: 60 },
+      { id: '5', order: 5, type: 'stir', instruction: 'Stir 3 times', duration: 5 },
+      { id: '6', order: 6, type: 'press', instruction: 'Flip carefully and press slowly', duration: 25 },
+    ],
+  },
+  {
+    name: 'Hoffmann French Press',
+    description: 'James Hoffmann\'s technique for a cleaner, sweeter French press.',
+    brewMethod: 'FRENCH_PRESS',
+    isDefault: true,
+    coffeeAmount: 30,
+    waterAmount: 500,
+    ratio: '1:16.7',
+    waterTemp: 95,
+    grindSize: 'Medium-coarse',
+    totalTime: 540, // 9:00
+    author: 'James Hoffmann',
+    source: 'YouTube',
+    steps: [
+      { id: '1', order: 1, type: 'pour', instruction: 'Add coffee, pour all water', duration: 20, pourAmount: 500 },
+      { id: '2', order: 2, type: 'wait', instruction: 'Let steep untouched for 4 minutes', duration: 240 },
+      { id: '3', order: 3, type: 'stir', instruction: 'Break crust, stir gently, scoop off foam', duration: 30 },
+      { id: '4', order: 4, type: 'wait', instruction: 'Wait 5 more minutes for fines to settle', duration: 250 },
+      { id: '5', order: 5, type: 'finish', instruction: 'Press plunger just below surface, pour gently', duration: 0 },
+    ],
+  },
+  {
+    name: 'Classic French Press',
+    description: 'Traditional 4-minute French press method for full-bodied coffee.',
+    brewMethod: 'FRENCH_PRESS',
+    isDefault: true,
+    coffeeAmount: 30,
+    waterAmount: 500,
+    ratio: '1:16.7',
+    waterTemp: 93,
+    grindSize: 'Coarse',
+    totalTime: 270, // 4:30
+    author: 'Traditional',
+    steps: [
+      { id: '1', order: 1, type: 'pour', instruction: 'Add coffee, pour water in circular motion', duration: 20, pourAmount: 500 },
+      { id: '2', order: 2, type: 'stir', instruction: 'Stir gently to saturate all grounds', duration: 10 },
+      { id: '3', order: 3, type: 'wait', instruction: 'Place lid on, steep for 4 minutes', duration: 240 },
+      { id: '4', order: 4, type: 'press', instruction: 'Press plunger slowly and steadily', duration: 0 },
+    ],
+  },
+  {
+    name: 'Chemex Classic',
+    description: 'Standard Chemex recipe for a clean, bright, and delicate cup.',
+    brewMethod: 'POUR_OVER',
+    isDefault: true,
+    coffeeAmount: 42,
+    waterAmount: 700,
+    ratio: '1:16.7',
+    waterTemp: 94,
+    grindSize: 'Medium-coarse',
+    totalTime: 270, // 4:30
+    author: 'Chemex',
+    steps: [
+      { id: '1', order: 1, type: 'bloom', instruction: 'Add 80g water, ensure all grounds are wet', duration: 45, pourAmount: 80, targetWeight: 80 },
+      { id: '2', order: 2, type: 'pour', instruction: 'Pour in slow spirals to 350g', duration: 45, pourAmount: 270, targetWeight: 350 },
+      { id: '3', order: 3, type: 'wait', instruction: 'Let drain until bed is visible', duration: 30 },
+      { id: '4', order: 4, type: 'pour', instruction: 'Second pour to 550g in spirals', duration: 45, pourAmount: 200, targetWeight: 550 },
+      { id: '5', order: 5, type: 'wait', instruction: 'Let drain', duration: 30 },
+      { id: '6', order: 6, type: 'pour', instruction: 'Final pour to 700g', duration: 30, pourAmount: 150, targetWeight: 700 },
+      { id: '7', order: 7, type: 'wait', instruction: 'Let drain completely', duration: 45 },
+    ],
+  },
+  {
+    name: 'Kalita Wave Recipe',
+    description: 'Consistent, forgiving recipe for the flat-bottom Kalita Wave.',
+    brewMethod: 'POUR_OVER',
+    isDefault: true,
+    coffeeAmount: 20,
+    waterAmount: 300,
+    ratio: '1:15',
+    waterTemp: 93,
+    grindSize: 'Medium',
+    totalTime: 180, // 3:00
+    author: 'Community Standard',
+    steps: [
+      { id: '1', order: 1, type: 'bloom', instruction: 'Pour 40g water, swirl gently', duration: 35, pourAmount: 40, targetWeight: 40 },
+      { id: '2', order: 2, type: 'pour', instruction: 'Pour to 150g in small circles', duration: 25, pourAmount: 110, targetWeight: 150 },
+      { id: '3', order: 3, type: 'wait', instruction: 'Wait for drawdown', duration: 20 },
+      { id: '4', order: 4, type: 'pour', instruction: 'Pour to 230g', duration: 25, pourAmount: 80, targetWeight: 230 },
+      { id: '5', order: 5, type: 'wait', instruction: 'Wait for drawdown', duration: 20 },
+      { id: '6', order: 6, type: 'pour', instruction: 'Final pour to 300g', duration: 20, pourAmount: 70, targetWeight: 300 },
+      { id: '7', order: 7, type: 'wait', instruction: 'Let drain completely', duration: 35 },
+    ],
+  },
+  {
+    name: 'Basic Cold Brew',
+    description: 'Classic overnight cold brew concentrate for smooth, low-acid coffee.',
+    brewMethod: 'COLD_BREW',
+    isDefault: true,
+    coffeeAmount: 100,
+    waterAmount: 1000,
+    ratio: '1:10',
+    waterTemp: 4,
+    grindSize: 'Coarse',
+    totalTime: 50400, // 14 hours
+    author: 'Traditional',
+    steps: [
+      { id: '1', order: 1, type: 'pour', instruction: 'Add coarse ground coffee to container', duration: 60 },
+      { id: '2', order: 2, type: 'pour', instruction: 'Add cold filtered water, stir to wet all grounds', duration: 60, pourAmount: 1000 },
+      { id: '3', order: 3, type: 'wait', instruction: 'Cover and refrigerate for 12-14 hours', duration: 50280 },
+      { id: '4', order: 4, type: 'finish', instruction: 'Filter through paper filter, dilute 1:1 to serve', duration: 0 },
+    ],
+  },
+  {
+    name: 'Moka Pot Classic',
+    description: 'Traditional stovetop method for rich, espresso-style coffee.',
+    brewMethod: 'MOKA_POT',
+    isDefault: true,
+    coffeeAmount: 20,
+    waterAmount: 200,
+    ratio: '1:10',
+    waterTemp: 70,
+    grindSize: 'Fine-medium',
+    totalTime: 300, // 5:00
+    author: 'Traditional Italian',
+    steps: [
+      { id: '1', order: 1, type: 'pour', instruction: 'Fill bottom chamber with hot water to valve', duration: 30, pourAmount: 200 },
+      { id: '2', order: 2, type: 'bloom', instruction: 'Fill basket with coffee, level off (don\'t tamp)', duration: 30 },
+      { id: '3', order: 3, type: 'wait', instruction: 'Assemble and place on medium-low heat', duration: 30 },
+      { id: '4', order: 4, type: 'wait', instruction: 'Watch for coffee to start flowing (should be honey-like)', duration: 150 },
+      { id: '5', order: 5, type: 'finish', instruction: 'Remove from heat when sputtering begins, cool base under water', duration: 60 },
+    ],
+  },
+];
+
 // Educational content about coffee
 const educationalContent = [
   // ORIGINS
@@ -632,6 +847,8 @@ async function main() {
 
   // Clear existing data
   console.log('Clearing existing data...');
+  await prisma.brewLog.deleteMany();
+  await prisma.brewRecipe.deleteMany();
   await prisma.beanAnalysis.deleteMany();
   await prisma.review.deleteMany();
   await prisma.favorite.deleteMany();
@@ -647,6 +864,16 @@ async function main() {
     console.log(`  Created: ${coffee.name}`);
   }
   console.log(`Seeded ${coffees.length} coffees`);
+
+  // Seed default brew recipes
+  console.log('Seeding default brew recipes...');
+  for (const recipe of defaultRecipes) {
+    await prisma.brewRecipe.create({
+      data: recipe as any,
+    });
+    console.log(`  Created: ${recipe.name}`);
+  }
+  console.log(`Seeded ${defaultRecipes.length} recipes`);
 
   // Seed educational content
   console.log('Seeding educational content...');

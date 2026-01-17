@@ -95,10 +95,10 @@ export function AnalyzePage() {
     <div className="container mx-auto px-4 py-8">
       <div className="max-w-4xl mx-auto">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold mb-2">AI Bean Analyzer</h1>
+          <h1 className="text-3xl font-bold mb-2">Beanalysis</h1>
           <p className="text-muted-foreground">
-            Upload a photo of your coffee beans to get instant analysis with roast level
-            identification and personalized brew parameters.
+            Snap your beans, scan your bags. Get instant roast identification, personalized
+            brew parameters, and one-tap import to your collection.
           </p>
         </div>
 
@@ -175,7 +175,7 @@ export function AnalyzePage() {
                       disabled={isAnalyzing || isUploading || !imageId}
                     >
                       {isAnalyzing && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                      Analyze Beans
+                      Run Beanalysis
                     </Button>
                   </div>
                 </div>
@@ -195,7 +195,7 @@ export function AnalyzePage() {
                 )}
               </div>
               <Button variant="outline" onClick={resetAnalysis}>
-                Analyze Another
+                New Beanalysis
               </Button>
             </div>
 
@@ -216,7 +216,7 @@ export function AnalyzePage() {
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Coffee className="h-5 w-5" />
-                    Bean Analysis
+                    Beanalysis Results
                   </CardTitle>
                   <CardDescription>
                     Confidence: {(result.confidence * 100).toFixed(0)}%
@@ -398,7 +398,7 @@ export function AnalyzePage() {
             )}
 
             <div className="flex justify-center">
-              <Button>Save Analysis to Profile</Button>
+              <Button>Save Beanalysis to Profile</Button>
             </div>
           </div>
         )}

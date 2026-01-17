@@ -131,3 +131,6 @@ export const COFFEE_ORIGINS = [
 
 // Export achievements
 export * from './achievements.js';
+
+// Export flavor wheel
+export * from './flavors.js';

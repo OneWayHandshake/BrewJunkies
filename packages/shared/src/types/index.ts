@@ -4,6 +4,8 @@ export * from './review.types.js';
 export * from './ai-analysis.types.js';
 export * from './education.types.js';
 export * from './passport.types.js';
+export * from './brew.types.js';
+export * from './grinder.types.js';
 
 export interface ApiResponse<T> {
   status: 'success' | 'error';

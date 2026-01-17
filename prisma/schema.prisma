@@ -29,6 +29,10 @@ model User {
   apiKeys      UserApiKey[]
   triedCoffees UserCoffee[]
   achievements UserAchievement[]
+  brewRecipes  BrewRecipe[]
+  brewLogs     BrewLog[]
+  grinders     Grinder[]
+  grindSettings GrindSetting[]
 
   @@index([email])
   @@index([googleId])
@@ -121,10 +125,12 @@ model Coffee {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  reviews    Review[]
-  favorites  Favorite[]
-  analyses   BeanAnalysis[]
-  usersTried UserCoffee[]
+  reviews       Review[]
+  favorites     Favorite[]
+  analyses      BeanAnalysis[]
+  usersTried    UserCoffee[]
+  brewLogs      BrewLog[]
+  grindSettings GrindSetting[]
 
   @@index([origin])
   @@index([roastLevel])
@@ -311,6 +317,7 @@ enum CoffeeSource {
   REVIEW
   ANALYSIS
   CREATED
+  BREW_LOG
 }
 
 model UserAchievement {
@@ -323,4 +330,116 @@ model UserAchievement {
 
   @@unique([userId, achievementKey])
   @@index([userId])
+}
+
+// ==================== BREW RECIPES ====================
+
+model BrewRecipe {
+  id           String     @id @default(cuid())
+  name         String
+  description  String?
+  brewMethod   BrewMethod
+  isDefault    Boolean    @default(false)
+  isPublic     Boolean    @default(false)
+  coffeeAmount Float      // grams
+  waterAmount  Float      // ml
+  ratio        String     // e.g., "1:15"
+  waterTemp    Float?     // Celsius
+  grindSize    String?
+  steps        Json       // Array of BrewStep objects
+  totalTime    Int        // seconds
+  author       String?
+  source       String?
+  clonedFromId String?    // Reference to original recipe if cloned
+
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  brewLogs BrewLog[]
+
+  @@index([userId])
+  @@index([brewMethod])
+  @@index([isDefault])
+  @@index([isPublic])
+}
+
+// ==================== BREW JOURNAL ====================
+
+model BrewLog {
+  id           String     @id @default(cuid())
+  brewMethod   BrewMethod
+  coffeeAmount Float      // grams
+  waterAmount  Float      // ml (or yield for espresso)
+  grindSize    String?
+  waterTemp    Float?     // Celsius
+  brewTime     Int?       // actual time in seconds
+  rating       Int?       // 1-5
+  tastingNotes String[]
+  notes        String?
+  imageUrl     String?
+
+  userId   String
+  user     User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  coffeeId String?
+  coffee   Coffee?     @relation(fields: [coffeeId], references: [id], onDelete: SetNull)
+  recipeId String?
+  recipe   BrewRecipe? @relation(fields: [recipeId], references: [id], onDelete: SetNull)
+
+  brewedAt  DateTime @default(now())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([coffeeId])
+  @@index([brewMethod])
+  @@index([brewedAt])
+}
+
+// ==================== GRINDER & DIAL-IN ====================
+
+model Grinder {
+  id           String  @id @default(cuid())
+  name         String
+  brand        String?
+  model        String?
+  burrType     String? // e.g., "Flat 64mm", "Conical 48mm"
+  stepsPerTurn Int?    // Number of steps/clicks per full rotation
+  notes        String?
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  grindSettings GrindSetting[]
+
+  @@index([userId])
+}
+
+model GrindSetting {
+  id          String     @id @default(cuid())
+  setting     String     // The actual grind setting (e.g., "18", "2.5", "15 clicks")
+  brewMethod  BrewMethod
+  notes       String?
+  rating      Int?       // 1-5, how well this setting worked
+  isDialedIn  Boolean    @default(false) // User's preferred setting for this combo
+
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  grinderId String
+  grinder   Grinder  @relation(fields: [grinderId], references: [id], onDelete: Cascade)
+  coffeeId  String?
+  coffee    Coffee?  @relation(fields: [coffeeId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([grinderId])
+  @@index([coffeeId])
+  @@index([brewMethod])
 }

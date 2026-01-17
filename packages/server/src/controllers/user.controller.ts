@@ -19,6 +19,7 @@ export const userController = {
               reviews: true,
               favorites: true,
               analyses: true,
+              brewLogs: true,
             },
           },
         },
@@ -35,6 +36,101 @@ export const userController = {
           reviewCount: user._count.reviews,
           favoriteCount: user._count.favorites,
           analysisCount: user._count.analyses,
+          brewCount: user._count.brewLogs,
+        },
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  async getProfileStats(req: Request, res: Response, next: NextFunction) {
+    try {
+      const userId = req.user!.id;
+
+      // Get counts
+      const [counts, topOrigins, recentBrews] = await Promise.all([
+        prisma.user.findUnique({
+          where: { id: userId },
+          select: {
+            _count: {
+              select: {
+                reviews: true,
+                favorites: true,
+                analyses: true,
+                brewLogs: true,
+                brewRecipes: true,
+              },
+            },
+          },
+        }),
+        // Get top 5 origins from brew logs
+        prisma.brewLog.groupBy({
+          by: ['coffeeId'],
+          where: {
+            userId,
+            coffeeId: { not: null },
+          },
+          _count: { coffeeId: true },
+          orderBy: { _count: { coffeeId: 'desc' } },
+          take: 10,
+        }).then(async (results) => {
+          if (results.length === 0) return [];
+          const coffeeIds = results.map((r) => r.coffeeId).filter(Boolean) as string[];
+          const coffees = await prisma.coffee.findMany({
+            where: { id: { in: coffeeIds } },
+            select: { id: true, origin: true },
+          });
+          // Group by origin and count
+          const originCounts: Record<string, number> = {};
+          for (const result of results) {
+            const coffee = coffees.find((c) => c.id === result.coffeeId);
+            if (coffee) {
+              originCounts[coffee.origin] = (originCounts[coffee.origin] || 0) + result._count.coffeeId;
+            }
+          }
+          return Object.entries(originCounts)
+            .map(([origin, count]) => ({ origin, count }))
+            .sort((a, b) => b.count - a.count)
+            .slice(0, 5);
+        }),
+        // Get last 5 brews
+        prisma.brewLog.findMany({
+          where: { userId },
+          orderBy: { brewedAt: 'desc' },
+          take: 5,
+          select: {
+            id: true,
+            brewMethod: true,
+            rating: true,
+            brewedAt: true,
+            coffee: {
+              select: { id: true, name: true, origin: true },
+            },
+          },
+        }),
+      ]);
+
+      // Count unique coffees tried
+      const uniqueCoffees = await prisma.brewLog.findMany({
+        where: { userId, coffeeId: { not: null } },
+        distinct: ['coffeeId'],
+        select: { coffeeId: true },
+      });
+
+      res.json({
+        status: 'success',
+        data: {
+          counts: {
+            reviews: counts?._count.reviews || 0,
+            favorites: counts?._count.favorites || 0,
+            analyses: counts?._count.analyses || 0,
+            brews: counts?._count.brewLogs || 0,
+            recipes: counts?._count.brewRecipes || 0,
+            uniqueCoffees: uniqueCoffees.length,
+          },
+          topOrigins,
+          recentBrews,
         },
       });
     } catch (error) {

@@ -2,6 +2,7 @@ import { useParams } from 'react-router-dom';
 import { Heart, ThermometerSun, Clock, Scale } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
+import { ShareButton } from '@/components/ui/ShareButton';
 
 export function CoffeeDetailPage() {
   const { id } = useParams();
@@ -21,9 +22,15 @@ export function CoffeeDetailPage() {
               <h1 className="text-3xl font-bold mb-2">Ethiopian Yirgacheffe</h1>
               <p className="text-lg text-muted-foreground">Single Origin - Ethiopia</p>
             </div>
-            <Button variant="outline" size="icon">
-              <Heart className="h-5 w-5" />
-            </Button>
+            <div className="flex items-center gap-2">
+              <ShareButton
+                title="Ethiopian Yirgacheffe"
+                text="Check out this amazing coffee from Ethiopia on BrewJunkies!"
+              />
+              <Button variant="outline" size="icon">
+                <Heart className="h-5 w-5" />
+              </Button>
+            </div>
           </div>
 
           <div className="flex gap-2 mb-6">
